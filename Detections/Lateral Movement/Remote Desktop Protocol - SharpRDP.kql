@@ -1,0 +1,11 @@
+//Severity: Medium
+let executions = DeviceProcessEvents
+| where InitiatingProcessFileName contains "taskmgr" and AccountName !contains "_ladm" // Include your LAPS /RID500 admin naming convention here. 
+// Add the below filter to look for stock SharpRDP behavior. However, with minorchanges to the stock version of SharpRDP the filter below can be bypassed.
+//| where not(InitiatingProcessCommandLine has_any ("/1","/2","/3","/4"))
+| where not(FolderPath =~ @"c:\Windows\system32\WerFault.exe" and ProcessCommandLine contains "-u -p")
+| where not(FolderPath =~ @"c:\windows\system32\mmc.exe" and ProcessCommandLine contains @"C:\WINDOWS\System32\services.msc")
+| where not(FolderPath =~ @"c:\windows\system32\resmon.exe");
+executions
+| join kind=leftsemi  (DeviceLogonEvents
+| where LogonType in ('Unlock', 'RemoteInteractive') and not (LogonType == 'Unlock' and RemoteIP == '127.0.0.1') and RemoteIP != "" and ActionType == "LogonSuccess") on DeviceId, LogonId
