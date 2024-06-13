@@ -9,3 +9,4 @@ let executions = DeviceProcessEvents
 executions
 | join kind=leftsemi  (DeviceLogonEvents
 | where LogonType in ('Unlock', 'RemoteInteractive') and not (LogonType == 'Unlock' and RemoteIP == '127.0.0.1') and RemoteIP != "" and ActionType == "LogonSuccess") on DeviceId, LogonId
+//test
